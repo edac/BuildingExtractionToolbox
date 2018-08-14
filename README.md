@@ -1,4 +1,4 @@
-# Building Extraction Toolbox  ArcGIS Toolbox
+# Building Extraction ArcGIS Toolbox
 
 
 The Building Extraction Toolbox  is a collection ArcGIS tools that you might find usefull.
