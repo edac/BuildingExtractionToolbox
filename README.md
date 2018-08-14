@@ -1,7 +1,7 @@
-# EDAC ArcGIS Toolbox
+# Building Extraction Toolbox  ArcGIS Toolbox
 
 
-The EDAC toolbox is a collection ArcGIS tools that you might find usefull.
+The Building Extraction Toolbox  is a collection ArcGIS tools that you might find usefull.
 
 Current Tools
   - Initial Building Objects
