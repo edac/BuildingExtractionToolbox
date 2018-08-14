@@ -18,7 +18,6 @@ class Toolbox(object):
         # List of tool classes associated with this toolbox
         self.tools = [Building_Extractor, NDVIBuilding_Filter, Building_Filter ]
 
-#Now in the Building Extractor, if you could disappear isobj+basename+.img, lrdiffgt2is+basename+.img, lr+basename+.img, basename+shapefile.  And change lrdiff+basename+.img to heightDSM+basename+.img.
 
 class Building_Extractor(object):
     def __init__(self):
