@@ -1,29 +1,8 @@
 # Building Extraction ArcGIS Toolbox
 
 
-The Building Extraction Toolbox  is a collection ArcGIS tools that you might find usefull.
+The Building Extraction Toolbox  is a collection ArcGIS tools that will extract building footprints from LiDAR LAS 1.4 tiles.
 
-Current Tools
-  - Initial Building Objects
-
-### Installation
-Download and unzip the github repo.
-https://github.com/edac/ArcGIS-Toolbox/archive/master.zip
-
-
-Open ArcMap and right click on "ArcToolbox", and click "Add Toolbox..."
-
-
-![](media/TB1.png)
-
-
-Browse to the location of the now unziped repository and choose the EDAC.pyt
-
-
-![](media/TB2.png)
-
-
-Thats it! 
 
 
 ### Development
