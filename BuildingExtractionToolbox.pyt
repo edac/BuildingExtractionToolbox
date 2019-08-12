@@ -161,6 +161,9 @@ class Building_Extractor(object):
                 lasLyr, outimg, lidarval, binningmethod, data_type, sampling_type, sampling_value, 1)
             arcpy.CheckOutExtension('Spatial')
             onlyfiles = glob.glob(os.path.join(demdir, basename+"*"))#[f for f in os.listdir(demdir) if os.path.isfile(os.path.join(demdir, f))]
+            if len(onlyfiles)==0:
+                arcpy.AddError("No valid file matching "+basename+" could be found in DEM directory.")
+           
             def firstvalid(filelist):
                 for val in filelist:
                     if os.path.splitext(val)[1].lower()==".img":
@@ -172,37 +175,41 @@ class Building_Extractor(object):
                     elif os.path.splitext(val)[1].lower()==".grd":
                         return val
             validdem=firstvalid(onlyfiles)
+            if validdem is None:
+                arcpy.AddError("No valid DEM associated with "+basename+".las could be found.")
+                arcpy.AddError("DEM must have file extention, .img, .tif, .tiff, or .grd ")
+                arcpy.AddError("For example "+os.path.join(demdir, basename+".tif"))
+            else:
+                outMinus = Raster(outimg) - Raster(validdem)
+                # outMinus.save(os.path.join(fulloutfolder,"lrdiff"+basename+".img"))
+                outCon = Con(outMinus, outMinus, 0.00, "VALUE > " + height)
+                # outCon.save(os.path.join(fulloutfolder,"lrdiffgt2"+basename+".img"))
+                outSetNull = SetNull(outCon, outCon, "VALUE <= 0")
+                outSetNull.save(os.path.join(
+                    fulloutfolder, "heightDSM"+basename+".img"))
+                arcpy.AddMessage(
+                    "Segment Mean Shift phase. This will take some time. Be patient.")
+                seg_raster = SegmentMeanShift(
+                    outSetNull, spectral_detail, spatial_detail,  min_segment_size)
+                seg_raster.save(os.path.join(
+                    fulloutfolder, "lrdiffgt2is"+basename+".img"))
+                CountoutCon = Con(seg_raster, seg_raster, 0.00, "COUNT < 10000")
 
-            outMinus = Raster(outimg) - Raster(validdem)
-            # outMinus.save(os.path.join(fulloutfolder,"lrdiff"+basename+".img"))
-            outCon = Con(outMinus, outMinus, 0.00, "VALUE > " + height)
-            # outCon.save(os.path.join(fulloutfolder,"lrdiffgt2"+basename+".img"))
-            outSetNull = SetNull(outCon, outCon, "VALUE <= 0")
-            outSetNull.save(os.path.join(
-                fulloutfolder, "heightDSM"+basename+".img"))
-            arcpy.AddMessage(
-                "Segment Mean Shift phase. This will take some time. Be patient.")
-            seg_raster = SegmentMeanShift(
-                outSetNull, spectral_detail, spatial_detail,  min_segment_size)
-            seg_raster.save(os.path.join(
-                fulloutfolder, "lrdiffgt2is"+basename+".img"))
-            CountoutCon = Con(seg_raster, seg_raster, 0.00, "COUNT < 10000")
-
-            CountoutCon.save(os.path.join(fulloutfolder, "isobj"+basename+".img"))
-            outPolygons = os.path.join(fulloutfolder, basename+".shp")
-            field = "VALUE"
-            arcpy.RasterToPolygon_conversion(
-                CountoutCon, outPolygons, "NO_SIMPLIFY")
-            outZonalStats = ZonalStatistics(
-                outPolygons, "ID", outSetNull, "STD", "NODATA")
-            outZonalStats.save(os.path.join(
-                fulloutfolder, "isobjsd"+basename+".img"))
-            arcpy.Delete_management(os.path.join(fulloutfolder, "isobj"+basename+".img"))
-            arcpy.Delete_management(os.path.join(fulloutfolder, "lrdiffgt2is"+basename+".img"))
-            arcpy.Delete_management(os.path.join(fulloutfolder, "lr"+basename+".img"))
-            arcpy.Delete_management(os.path.join(fulloutfolder, basename+".shp"))
-       
-            arcpy.AddMessage("Finished:" + filename)
+                CountoutCon.save(os.path.join(fulloutfolder, "isobj"+basename+".img"))
+                outPolygons = os.path.join(fulloutfolder, basename+".shp")
+                field = "VALUE"
+                arcpy.RasterToPolygon_conversion(
+                    CountoutCon, outPolygons, "NO_SIMPLIFY")
+                outZonalStats = ZonalStatistics(
+                    outPolygons, "ID", outSetNull, "STD", "NODATA")
+                outZonalStats.save(os.path.join(
+                    fulloutfolder, "isobjsd"+basename+".img"))
+                arcpy.Delete_management(os.path.join(fulloutfolder, "isobj"+basename+".img"))
+                arcpy.Delete_management(os.path.join(fulloutfolder, "lrdiffgt2is"+basename+".img"))
+                arcpy.Delete_management(os.path.join(fulloutfolder, "lr"+basename+".img"))
+                arcpy.Delete_management(os.path.join(fulloutfolder, basename+".shp"))
+        
+                arcpy.AddMessage("Finished:" + filename)
         return
 
         
